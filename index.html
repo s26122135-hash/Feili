@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft Blue Portfolio Adventure ✦ 作品集入口</title>
+    <!-- Google Fonts: Elegant sans-serif typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sky-soft': '#e0f2fe',
+                        'ice-blue': '#f0f7ff',
+                        'azure-light': '#38bdf8',
+                        'azure-deep': '#0284c7',
+                        'slate-soft': '#f1f5f9',
+                    },
+                    fontFamily: {
+                        'poppins': ['"Poppins"', '"Noto Sans TC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #eef7ff 0%, #e0f2fe 40%, #f0fdf4 100%);
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* Subtle animated background clouds/floating lights */
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatGlow 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -40px) scale(1.1); }
+            100% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* Avatar gentle glow & floating animation */
+        @keyframes avatarFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .avatar-wrapper {
+            animation: avatarFloat 5s ease-in-out infinite;
+        }
+
+        /* Glassmorphism card container */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Base Stage Card Styles */
+        .stage-card {
+            transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Unlocked Cards Style (Soft Azure Light Blue Gradient) */
+        .stage-card.unlocked {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            border: 2px solid #7dd3fc;
+            box-shadow: 0 4px 15px -3px rgba(56, 189, 248, 0.2), 0 2px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Unlocked Hover Animation: 3D Lift + Soft Cyan/Blue Glow + Shimmer */
+        .stage-card.unlocked:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #38bdf8;
+            box-shadow: 0 15px 30px -5px rgba(56, 189, 248, 0.35), 0 0 20px 2px rgba(186, 230, 253, 0.6);
+        }
+
+        /* Shimmer reflection highlight on hover */
+        .stage-card.unlocked::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: left 0.75s ease;
+        }
+
+        .stage-card.unlocked:hover::before {
+            left: 150%;
+        }
+
+        /* Locked Cards Style (Soft Slate / Gray Muted Tone) */
+        .stage-card.locked {
+            background: rgba(241, 245, 249, 0.7);
+            border: 1.5px dashed #cbd5e1;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        /* Locked Hover Shake Effect */
+        .stage-card.locked:hover {
+            border-color: #94a3b8;
+            animation: lockedWiggle 0.4s ease-in-out;
+        }
+
+        @keyframes lockedWiggle {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-4px); }
+            40% { transform: translateX(4px); }
+            60% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+        }
+
+        /* Sparkle icon spin-pulse */
+        @keyframes sparklePulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            50% { transform: scale(1.25) rotate(15deg); opacity: 1; }
+        }
+
+        .sparkle-icon {
+            animation: sparklePulse 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen items-center justify-between p-4 sm:p-6 lg:p-10 relative">
+
+    <div class="bg-glow w-96 h-96 bg-sky-200 top-0 left-1/4"></div>
+    <div class="bg-glow w-80 h-80 bg-blue-100 bottom-10 right-10"></div>
+
+    <main class="w-full max-w-5xl z-10 flex flex-col items-center">
+        
+        <!-- Profile Header Section -->
+        <section class="flex flex-col items-center text-center mb-8 sm:mb-12">
+            
+            <!-- Avatar Container with soft halo -->
+            <div class="relative avatar-wrapper mb-4">
+                <div class="absolute -inset-2 bg-gradient-to-r from-sky-300 via-blue-200 to-indigo-200 rounded-full blur-lg opacity-70"></div>
+                
+                <div class="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-white shadow-lg overflow-hidden bg-sky-50 flex items-center justify-center">
+                    <img src="https://placehold.co/300x300/e0f2fe/0284c7?text=✦+Avatar+✦" 
+                         alt="Profile Avatar" 
+                         class="w-full h-full object-cover"
+                         onerror="this.src='https://placehold.co/300x300/e0f2fe/0284c7?text=👤';">
+                </div>
+
+                <!-- Unlocked Badge -->
+                <div class="absolute -bottom-2 bg-gradient-to-r from-sky-400 to-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md border-2 border-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-gem text-sky-100 text-[10px]"></i>
+                    <span>LV. 2 / 16 UNLOCKED</span>
+                </div>
+            </div>
+
+            <!-- Profile Info -->
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 tracking-wide mb-1 flex items-center gap-2">
+                <span>網頁程式開發作品集</span>
+                <span class="text-sky-500 text-lg">✦</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-sky-700 bg-sky-100/70 backdrop-blur-md border border-sky-200/80 px-4 py-1 rounded-full font-medium mb-4">
+                Web Programming Journey & Mission Hub
+            </p>
+
+            <!-- Quest Progress Bar -->
+            <div class="w-64 sm:w-80 glass-panel rounded-full h-4 p-0.5 border border-sky-200 shadow-inner flex items-center">
+                <div class="bg-gradient-to-r from-sky-400 to-blue-500 h-full rounded-full transition-all duration-1000 shadow-sm" style="width: 12.5%;"></div>
+                <span class="text-[10px] text-sky-700 font-bold ml-2 pr-1">12.5%</span>
+            </div>
+        </section>
+
+        <section class="w-full">
+            <!-- Grid Layout: 1 col on mobile, 2 on tablet, 4 on desktop -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+
+                <!-- -------------------- WEEK 1 (UNLOCKED) -------------------- -->
+                <a href="w1/index.html" class="stage-card unlocked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-sky-600 bg-sky-100 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                            Week 01
+                        </span>
+                        <div class="w-8 h-8 rounded-full bg-sky-100 text-sky-500 flex items-center justify-center text-xs font-bold shadow-xs">
+                            <i class="fa-solid fa-address-card sparkle-icon"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 group-hover:text-sky-600 transition-colors line-clamp-1">
+                            Week 1 - 數位名片
+                        </h3>
+                        <p class="text-xs text-sky-500 mt-1.5 flex items-center gap-1 font-medium">
+                            <span>進入作品關卡</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                        </p>
+                    </div>
+                </a>
+
+                <!-- -------------------- WEEK 2 (UNLOCKED) -------------------- -->
+                <a href="w2/index.html" class="stage-card unlocked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-sky-600 bg-sky-100 px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                            Week 02
+                        </span>
+                        <div class="w-8 h-8 rounded-full bg-sky-100 text-sky-500 flex items-center justify-center text-xs font-bold shadow-xs">
+                            <i class="fa-solid fa-utensils sparkle-icon"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 group-hover:text-sky-600 transition-colors line-clamp-1">
+                            Week 2 - 今天吃甚麼?
+                        </h3>
+                        <p class="text-xs text-sky-500 mt-1.5 flex items-center gap-1 font-medium">
+                            <span>進入作品關卡</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                        </p>
+                    </div>
+                </a>
+
+                <!-- -------------------- WEEK 3 to 16 (LOCKED) -------------------- -->
+                <!-- Week 3 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 03</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 3 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 4 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 04</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 4 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 5 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 05</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 5 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 6 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 06</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 6 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 7 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 07</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 7 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 8 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 08</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 8 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 9 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 09</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 9 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 10 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 10</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 10 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 11 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 11</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 11 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 12 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 12</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 12 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 13 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 13</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 13 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 14 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 14</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 14 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 15 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 15</span>
+                        <span class="text-sm">🔒</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 15 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mission Locked</p>
+                    </div>
+                </div>
+
+                <!-- Week 16 -->
+                <div class="stage-card locked rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-36 sm:h-40">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-medium text-slate-400 bg-slate-200/80 px-2.5 py-1 rounded-md">Week 16</span>
+                        <span class="text-sm">🏆</span>
+                    </div>
+                    <div class="my-auto">
+                        <p class="text-sm font-semibold text-slate-500">Week 16 - 尚未開放</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Final Boss Challenge 🔒</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-12 text-center text-xs text-slate-400 z-10">
+        <p class="flex items-center justify-center gap-1.5 font-medium">
+            <span>Designed with</span>
+            <i class="fa-solid fa-sparkles text-sky-400"></i>
+            <span>for Web Programming Class</span>
+        </p>
+        <p class="text-[11px] text-slate-400/80 mt-1">© Portfolio Index • Elegant Soft Blue Theme</p>
+    </footer>
+
+</body>
+</html>
