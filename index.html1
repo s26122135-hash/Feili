@@ -235,7 +235,7 @@
 
         .progress-bar-fill {
             height: 100%;
-            width: 18.75%; /* 3/16 通關進度 */
+            width: 18.75%; /* 3/16 */
             background: linear-gradient(90deg, #38bdf8, #0284c7);
             border-radius: 10px;
             transition: width 1s ease-in-out;
@@ -475,32 +475,32 @@
                 </div>
             </a>
 
-            <!-- Week 3 -->
-            <a href="w3/index.html" class="week-card unlocked">
+            <!-- Week 3 (Locked) -->
+            <div class="week-card locked">
                 <div>
                     <div class="week-badge">
-                        <i class="fa-solid fa-circle-check"></i> Week 03
+                        <i class="fa-solid fa-lock"></i> Week 03
                     </div>
-                    <h3 class="card-title">Week 3 - 迷因產生器</h3>
+                    <h3 class="card-title">Week 3 - 關卡尚未開啟</h3>
+                </div>
+                <div class="card-footer">
+                    <span class="locked-tag">🔒 未解鎖</span>
+                </div>
+            </div>
+
+            <!-- Week 4 (Unlocked: 悄悄話) -->
+            <a href="w4/index.html" class="week-card unlocked">
+                <div>
+                    <div class="week-badge">
+                        <i class="fa-solid fa-circle-check"></i> Week 04
+                    </div>
+                    <h3 class="card-title">Week 4 - 悄悄話</h3>
                 </div>
                 <div class="card-footer">
                     <span>點擊進入作業</span>
                     <div class="arrow-icon"><i class="fa-solid fa-arrow-right"></i></div>
                 </div>
             </a>
-
-            <!-- Week 4 (Locked) -->
-            <div class="week-card locked">
-                <div>
-                    <div class="week-badge">
-                        <i class="fa-solid fa-lock"></i> Week 04
-                    </div>
-                    <h3 class="card-title">Week 4 - 關卡尚未開啟</h3>
-                </div>
-                <div class="card-footer">
-                    <span class="locked-tag">🔒 未解鎖</span>
-                </div>
-            </div>
 
             <!-- Week 5 (Locked) -->
             <div class="week-card locked">
@@ -558,7 +558,7 @@
             <div class="week-card locked">
                 <div>
                     <div class="week-badge">
-                        <i class="fa-solid fa-lock"></i> Week 09
+                        <i class="fa-solid fa-lock"></i> Week 9
                     </div>
                     <h3 class="card-title">Week 9 - 關卡尚未開啟</h3>
                 </div>
