@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>羊駝草泥馬的真心話留言板 🦙</title>
+  
+  <!-- 引入 Google Fonts 手寫可愛字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       1. 顏色與整體變數設定 (方便後續快速修改風格)
+       ========================================================= */
+    :root {
+      /* 【色彩主題：羊駝大地色系】 */
+      --bg-color: #FDF6ED;           /* 網頁主背景：溫暖奶茶白 */
+      --header-color: #724E2C;       /* 標題與重點文字：深羊駝棕 */
+      --card-bg: #FFFFFF;           /* 卡片背景：純白 */
+      --card-border: #E8D5C4;       /* 卡片預設邊框：淺燕麥色 */
+      --accent-color: #E29578;      /* 飾色/悄悄話標籤：暖橘粉 */
+      --highlight-glow: #FFB03A;    /* 輪播高亮發光色：奶油金黃 */
+      
+      /* 【輪播高亮與動畫參數】 */
+      --transition-speed: 0.5s;     /* 卡片變換特效過渡時間 */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Zen Maru Gothic', sans-serif, system-ui;
+      background-color: var(--bg-color);
+      color: #4A3B32;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      /* 背景加上微小可愛斑點圖案 */
+      background-image: radial-gradient(#E8D5C4 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+    }
+
+    /* =========================================================
+       2. 頁首與羊駝主題裝飾
+       ========================================================= */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .alpaca-avatar {
+      font-size: 4rem;
+      display: inline-block;
+      animation: float 3s ease-in-out infinite;
+      margin-bottom: 0.5rem;
+    }
+
+    /* 羊駝上下漂浮動畫 */
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    h1 {
+      color: var(--header-color);
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--accent-color);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    /* =========================================================
+       3. 酷炫『讀取中...』動畫
+       ========================================================= */
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 1rem;
+    }
+
+    .loading-alpaca {
+      font-size: 3.5rem;
+      animation: bounce 0.6s ease infinite alternate;
+    }
+
+    .loading-text {
+      margin-top: 1rem;
+      font-weight: 700;
+      color: var(--header-color);
+      letter-spacing: 2px;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-20px); }
+    }
+
+    /* =========================================================
+       4. 瀑布流卡片牆 (Masonry Layout)
+       ========================================================= */
+    .board-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      
+      /* CSS 瀑布流核心：設定欄數 */
+      column-count: 3;
+      column-gap: 1.5rem;
+    }
+
+    /* 響應式調整：小螢幕變單欄/雙欄 */
+    @media (max-width: 900px) {
+      .board-container { column-count: 2; }
+    }
+    @media (max-width: 600px) {
+      .board-container { column-count: 1; }
+    }
+
+    /* =========================================================
+       5. 留言卡片基礎與輪播 Highlight 特效
+       ========================================================= */
+    .card {
+      background: var(--card-bg);
+      border: 3px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      break-inside: avoid; /* 避免卡片被 CSS 分欄斷開 */
+      box-shadow: 0 8px 16px rgba(114, 78, 44, 0.06);
+      
+      /* 動畫平滑轉場 */
+      transition: all var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      opacity: 1;
+    }
+
+    /* 頁面載入時的卡片漸顯效果 */
+    .card.fade-in {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      border-bottom: 2px dashed var(--card-border);
+      padding-bottom: 0.5rem;
+    }
+
+    .author {
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: var(--header-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timestamp {
+      font-size: 0.75rem;
+      color: #A08C7D;
+    }
+
+    .content {
+      line-height: 1.6;
+      font-size: 0.98rem;
+      word-wrap: break-word;
+      white-space: pre-wrap; /* 保留換行 */
+    }
+
+    /* ---------------------------------------------------------
+       重點特效：【輪播高亮 (Highlight)】與【非高亮淡化】
+       --------------------------------------------------------- */
+    /* 1. 當前被選中的高亮卡片 */
+    .card.highlight {
+      transform: scale(1.08) translateY(-5px);
+      border-color: var(--highlight-glow);
+      box-shadow: 0 12px 30px rgba(255, 176, 58, 0.4), 
+                  0 0 20px rgba(255, 176, 58, 0.2);
+      z-index: 10;
+      opacity: 1 !important;
+      filter: blur(0) !important;
+    }
+
+    .card.highlight::after {
+      content: '🦙✨';
+      position: absolute;
+      top: -12px;
+      right: 15px;
+      font-size: 1.5rem;
+      background: var(--bg-color);
+      padding: 0 4px;
+      border-radius: 50%;
+    }
+
+    /* 2. 當有卡片在高亮時，其他未被選中的卡片 */
+    .board-container.has-active .card:not(.highlight) {
+      opacity: 0.45;             /* 稍微變暗 */
+      filter: blur(1px);          /* 微模糊效果 */
+      transform: scale(0.96);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頁首區域 -->
+  <header>
+    <div class="alpaca-avatar">🦙</div>
+    <h1>草泥馬的真心話留言板</h1>
+    <p class="subtitle">來自朋友們的動態留言 wall ✨</p>
+  </header>
+
+  <!-- 讀取中動畫 (資料載入完成後會被隱藏) -->
+  <div id="loading">
+    <div class="loading-alpaca">🦙...</div>
+    <div class="loading-text">草泥馬吃草中，讀取留言中...</div>
+  </div>
+
+  <!-- 留言板瀑布流容器 -->
+  <main class="board-container" id="boardContainer"></main>
+
+  <script>
+    /* =========================================================
+       6. 參數設定區 (請在此修改你的計時器秒數與網址)
+       ========================================================= */
+    // 【輪播秒數設定】(單位：毫秒，3000ms = 3 秒)
+    const CAROUSEL_INTERVAL = 3000; 
+
+    // Google 試算表 CSV 發布網址
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdx4dBDn07VbBtPHQF-AxpoHTDjW51TUAkIWwXtLPVbvYthm9Ado0kgSiJeUGczRW7J7VrV5fSsYGr/pub?output=csv';
+
+    // 全域變數
+    let messageData = [];
+    let activeIndex = -1;
+    let carouselTimer = null;
+
+    /* =========================================================
+       7. 健壯的 CSV 解析器 (Robust CSV Parser)
+       處理留言內可能包含逗號 (,)、換行與雙引號的情形
+       ========================================================= */
+    function parseCSV(text) {
+      const lines = [];
+      let row = [];
+      let currentToken = '';
+      let insideQuote = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (insideQuote && nextChar === '"') {
+            currentToken += '"';
+            i++; // 跳過轉義的引號
+          } else {
+            insideQuote = !insideQuote; // 切換引號狀態
+          }
+        } else if (char === ',' && !insideQuote) {
+          row.push(currentToken.trim());
+          currentToken = '';
+        } else if ((char === '\r' || char === '\n') && !insideQuote) {
+          if (char === '\r' && nextChar === '\n') {
+            i++; // 處理 \r\n
+          }
+          row.push(currentToken.trim());
+          if (row.length > 0 && row.some(field => field !== '')) {
+            lines.push(row);
+          }
+          row = [];
+          currentToken = '';
+        } else {
+          currentToken += char;
+        }
+      }
+      
+      if (currentToken || row.length > 0) {
+        row.push(currentToken.trim());
+        lines.push(row);
+      }
+
+      return lines;
+    }
+
+    /* =========================================================
+       8. 主程式：讀取資料與初始化
+       ========================================================= */
+    async function initBoard() {
+      const loadingEl = document.getElementById('loading');
+      const container = document.getElementById('boardContainer');
+
+      try {
+        // 發送 Fetch 請求取得 CSV 資料
+        const response = await fetch(CSV_URL);
+        if (!response.ok) throw new Error('網路回應不成功');
+        
+        const csvRawText = await response.text();
+        const parsedRows = parseCSV(csvRawText);
+
+        // 移除表頭 (時間戳記, 名字, 悄悄話)
+        const dataRows = parsedRows.slice(1);
+
+        // 轉為物件結構陣列
+        messageData = dataRows.map(row => ({
+          timestamp: row[0] || '剛剛',
+          name: row[1] || '匿名羊駝',
+          content: row[2] || '(這隻羊駝什麼都沒留下...)'
+        }));
+
+        // 隱藏載入中動畫
+        loadingEl.style.display = 'none';
+
+        // 若無資料時的處理
+        if (messageData.length === 0) {
+          container.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">目前還沒有留言喔！</p>';
+          return;
+        }
+
+        // 動態生成留言卡片
+        renderCards(messageData);
+
+        // 啟動 3 秒輪播 Highlight 特效
+        startCarousel();
+
+      } catch (error) {
+        console.error('讀取留言失敗:', error);
+        loadingEl.innerHTML = `
+          <div class="loading-alpaca">😭</div>
+          <div class="loading-text">留言讀取失敗，請確認試算表權限或網路狀態。</div>
+        `;
+      }
+    }
+
+    /* =========================================================
+       9. 動態生成 DOM 節點 (卡片)
+       ========================================================= */
+    function renderCards(data) {
+      const container = document.getElementById('boardContainer');
+      container.innerHTML = '';
+
+      data.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'card fade-in';
+        card.dataset.index = index; // 綁定索引，供輪播尋找
+
+        // 防止 XSS 攻擊的簡單字元轉義
+        const safeName = escapeHTML(item.name);
+        const safeContent = escapeHTML(item.content);
+        const safeTime = escapeHTML(item.timestamp);
+
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="author">🦙 ${safeName}</span>
+            <span class="timestamp">${safeTime}</span>
+          </div>
+          <div class="content">${safeContent}</div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    /* =========================================================
+       10. 隨時間輪播高亮特效 (Carousel Highlight)
+       ========================================================= */
+    function startCarousel() {
+      if (messageData.length === 0) return;
+
+      const container = document.getElementById('boardContainer');
+
+      carouselTimer = setInterval(() => {
+        // 取得所有卡片 DOM
+        const cards = document.querySelectorAll('.card');
+        if (cards.length === 0) return;
+
+        // 計算下一個高亮卡片的 Index
+        activeIndex = (activeIndex + 1) % cards.length;
+
+        // 標記容器為 active 狀態 (觸發其他卡片淡化 blur 效果)
+        container.classList.add('has-active');
+
+        // 更新卡片狀態
+        cards.forEach((card, idx) => {
+          if (idx === activeIndex) {
+            card.classList.add('highlight');
+            
+            // 順暢滾動至目前高亮的卡片 (適用於手機或長頁面)
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          } else {
+            card.classList.remove('highlight');
+          }
+        });
+
+      }, CAROUSEL_INTERVAL); // 預設每 3 秒 (3000ms) 執行一次
+    }
+
+    // 輔助函式：防止 HTML 惡意字串注入 (XSS 防護)
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // 頁面載入後啟動
+    document.addEventListener('DOMContentLoaded', initBoard);
+  </script>
+</body>
+</html>
