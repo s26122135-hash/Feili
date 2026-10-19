@@ -235,7 +235,7 @@
 
         .progress-bar-fill {
             height: 100%;
-            width: 12.5%; /* 2/16 */
+            width: 18.75%; /* 3/16 */
             background: linear-gradient(90deg, #38bdf8, #0284c7);
             border-radius: 10px;
             transition: width 1s ease-in-out;
@@ -390,73 +390,6 @@
             font-weight: 600;
         }
 
-        /* ==========================================================================
-           4. MODAL PREVIEW POPUP
-           ========================================================================== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-container {
-            background: white;
-            width: 100%;
-            max-width: 650px;
-            max-height: 90vh;
-            border-radius: var(--radius-xl);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            overflow-y: auto;
-            position: relative;
-            transform: translateY(20px) scale(0.95);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            padding: 30px;
-        }
-
-        .modal-overlay.active .modal-container {
-            transform: translateY(0) scale(1);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f1f5f9;
-            border: none;
-            font-size: 1.1rem;
-            color: #64748b;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .close-modal:hover {
-            background: #e2e8f0;
-            color: #0f172a;
-        }
-
         /* Responsive Mobile Layout */
         @media (max-width: 640px) {
             body { padding: 20px 12px 60px; }
@@ -497,7 +430,7 @@
             <div class="progress-box">
                 <div class="progress-header">
                     <span><i class="fa-solid fa-trophy" style="color: #f59e0b;"></i> 課程闖關進度</span>
-                    <span>2 / 16 關卡 (12.5%)</span>
+                    <span>3 / 16 關卡 (18.75%)</span>
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill"></div>
@@ -542,33 +475,32 @@
                 </div>
             </a>
 
-       <!-- Week 3 -->
-            <a href="w3/index.html" class="week-card unlocked">
+            <!-- Week 3 (Locked) -->
+            <div class="week-card locked">
                 <div>
                     <div class="week-badge">
-                        <i class="fa-solid fa-circle-check"></i> Week 03
+                        <i class="fa-solid fa-lock"></i> Week 03
                     </div>
-                    <h3 class="card-title">Week 3 - 迷因產生器</h3>
+                    <h3 class="card-title">Week 3 - 關卡尚未開啟</h3>
+                </div>
+                <div class="card-footer">
+                    <span class="locked-tag">🔒 未解鎖</span>
+                </div>
+            </div>
+
+            <!-- Week 4 (Unlocked: 悄悄話) -->
+            <a href="w4/index.html" class="week-card unlocked">
+                <div>
+                    <div class="week-badge">
+                        <i class="fa-solid fa-circle-check"></i> Week 04
+                    </div>
+                    <h3 class="card-title">Week 4 - 悄悄話</h3>
                 </div>
                 <div class="card-footer">
                     <span>點擊進入作業</span>
                     <div class="arrow-icon"><i class="fa-solid fa-arrow-right"></i></div>
                 </div>
             </a>
-            
-
-            <!-- Week 4 (Locked) -->
-            <div class="week-card locked">
-                <div>
-                    <div class="week-badge">
-                        <i class="fa-solid fa-lock"></i> Week 04
-                    </div>
-                    <h3 class="card-title">Week 4 - 關卡尚未開啟</h3>
-                </div>
-                <div class="card-footer">
-                    <span class="locked-tag">🔒 未解鎖</span>
-                </div>
-            </div>
 
             <!-- Week 5 (Locked) -->
             <div class="week-card locked">
@@ -626,7 +558,7 @@
             <div class="week-card locked">
                 <div>
                     <div class="week-badge">
-                        <i class="fa-solid fa-lock"></i> Week 09
+                        <i class="fa-solid fa-lock"></i> Week 9
                     </div>
                     <h3 class="card-title">Week 9 - 關卡尚未開啟</h3>
                 </div>
