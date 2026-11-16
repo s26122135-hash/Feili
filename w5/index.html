@@ -180,10 +180,15 @@
               <div id="lobby-alpaca-svg" class="w-full h-full"></div>
             </div>
             <div class="flex flex-col items-end gap-1.5">
-              <!-- 雲端健康檢查狀態徽章 -->
-              <div id="cloud-health-badge" title="正在檢測與 Google Apps Script 的連線..." class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-morandi-bg border border-morandi-border text-[11px] font-medium text-morandi-sub">
-                <span id="cloud-health-dot" class="w-2 h-2 rounded-full bg-morandi-blue animate-pulse"></span>
-                <span id="cloud-health-text">檢測雲端連線中...</span>
+              <!-- 雲端健康檢查狀態徽章與試算表連結 -->
+              <div class="flex items-center gap-1.5">
+                <a href="https://docs.google.com/spreadsheets/d/1a1FDRcUwTDZdnVZWdbjpR_OA95CNzInjLrlU3cM-ExU/edit?usp=sharing" target="_blank" rel="noopener noreferrer" title="檢視綁定的 Google 試算表" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-morandi-sage/15 hover:bg-morandi-sage/25 border border-morandi-sage/30 text-[11px] font-medium text-morandi-sageDark transition">
+                  <span>📊 試算表</span>
+                </a>
+                <div id="cloud-health-badge" onclick="checkCloudHealth()" title="點擊重新檢測與 Google Apps Script 的連線..." class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-morandi-bg hover:bg-morandi-sandLight border border-morandi-border text-[11px] font-medium text-morandi-sub transition">
+                  <span id="cloud-health-dot" class="w-2 h-2 rounded-full bg-morandi-blue animate-pulse"></span>
+                  <span id="cloud-health-text">檢測雲端連線中...</span>
+                </div>
               </div>
               <!-- 單機模擬模式開關 -->
               <label class="inline-flex items-center gap-2 cursor-pointer bg-morandi-bg px-3 py-1 rounded-lg border border-morandi-border text-[11px] text-morandi-sub hover:text-morandi-ink transition">
@@ -425,6 +430,7 @@
     // 1. 系統常數與 API 設定
     // =================================================================
     const SHEET_NAME = 'TelepathyData';
+    const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1a1FDRcUwTDZdnVZWdbjpR_OA95CNzInjLrlU3cM-ExU/edit?usp=sharing";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwjpS_8FQDxnWzvSenPkGnkPwVqlYyI5Y2mX3nLorQh36hXulfe66HDEnXJj1UjnoUa/exec";
     const POLL_INTERVAL_MS = 2500; // 每 2.5 秒輪詢一次
 
@@ -601,6 +607,9 @@
       const text = document.getElementById("cloud-health-text");
       const badge = document.getElementById("cloud-health-badge");
 
+      dot.className = "w-2 h-2 rounded-full bg-morandi-blue animate-pulse";
+      text.textContent = "檢測雲端連線中...";
+
       try {
         const res = await fetch(`${GAS_API_URL}?room=_ping_&t=${Date.now()}`, {
           method: "GET",
@@ -618,8 +627,8 @@
       } catch (err) {
         console.warn("GAS 健康檢查未通過:", err);
         dot.className = "w-2 h-2 rounded-full bg-morandi-rose";
-        text.textContent = "GAS 連線受阻";
-        badge.title = "無法讀取 GAS（可能是本機 file:// 限制或 GAS 權限未設為「所有人」），可先勾選下方單機模擬模式體驗！";
+        text.textContent = "GAS 連線受阻 (點此重試)";
+        badge.title = "無法讀取 GAS（可能是預覽沙盒限制或新試算表的 GAS 尚未重新部署為「所有人」）。";
       }
     }
 
