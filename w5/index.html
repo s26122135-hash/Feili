@@ -470,6 +470,24 @@
       }
     };
 
+    // 依房號存取本機模擬資料（支援同瀏覽器多開分頁測試不同玩家加入房間）
+    function getLocalRoomData(roomCode) {
+      const key = `alpaca_room_${String(roomCode).trim().toUpperCase()}`;
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(state.mockStore));
+    }
+
+    function saveLocalRoomData(roomCode, data) {
+      const key = `alpaca_room_${String(roomCode).trim().toUpperCase()}`;
+      state.mockStore = JSON.parse(JSON.stringify(data));
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch (e) {}
+    }
+
     // =================================================================
     // 3. Notion 風格搞笑羊駝 SVG 產生器
     // =================================================================
@@ -693,6 +711,9 @@
         // 忽略沙盒環境 history.replaceState 限制
       }
 
+      // 重置上一次房間快取，確保加入房間時必定完整刷新畫面與題目
+      state.lastServerData = { status: "setup", question: "", answers: {} };
+
       document.getElementById("display-room-code").textContent = state.room;
       document.getElementById("display-player-name").textContent = state.playerName;
       document.getElementById("player-avatar-initial").textContent = state.playerName.slice(0, 1);
@@ -703,8 +724,8 @@
 
       updateHostConsoleVisibility();
 
-      // 立即抓取第一次資料
-      await fetchRoomState();
+      // 立即抓取第一次資料（確保一加入就能看到房主已出的題目）
+      await fetchRoomState(false);
 
       // 啟動 setInterval 輪詢機制
       if (state.pollTimer) clearInterval(state.pollTimer);
@@ -767,8 +788,8 @@
       try {
         let data;
         if (state.isMockMode) {
-          await new Promise(r => setTimeout(r, 150));
-          data = JSON.parse(JSON.stringify(state.mockStore));
+          await new Promise(r => setTimeout(r, 120));
+          data = getLocalRoomData(state.room);
         } else {
           const url = `${GAS_API_URL}?room=${encodeURIComponent(state.room)}&t=${Date.now()}`;
           const response = await fetch(url, {
@@ -779,24 +800,29 @@
           data = await response.json();
         }
 
+        // 兼容狀態大小寫與空白字元，並確保有題目時狀態正確切換
+        const rawStatus = String(data.status || "setup").trim().toLowerCase();
+        const questionText = String(data.question || "").trim();
+        const resolvedStatus = (rawStatus === "setup" && questionText !== "") ? "playing" : rawStatus;
+
         const normalizedData = {
-          status: data.status || "setup",
-          question: data.question || "",
-          answers: data.answers || {}
+          status: resolvedStatus,
+          question: questionText,
+          answers: (data.answers && typeof data.answers === "object") ? data.answers : {}
         };
 
+        console.log(`[Room ${state.room}] 同步狀態:`, normalizedData);
         renderGameState(normalizedData);
         updateSyncIndicator("ok");
         return normalizedData;
       } catch (err) {
         console.warn("GAS 讀取受限，自動切換至本機沙盒暫存狀態:", err);
-        // 若處於沙盒預覽環境無法對外連線，自動啟用單機模擬狀態以維持流暢體驗
         if (!state.isMockMode) {
           state.isMockMode = true;
           const toggle = document.getElementById("mock-mode-toggle");
           if (toggle) toggle.checked = true;
         }
-        const fallbackData = JSON.parse(JSON.stringify(state.mockStore));
+        const fallbackData = getLocalRoomData(state.room);
         renderGameState(fallbackData);
         updateSyncIndicator("ok");
         return fallbackData;
@@ -806,21 +832,28 @@
     }
 
     function applyLocalMockAction(payload) {
+      const roomCode = payload.room || state.room;
+      const current = getLocalRoomData(roomCode);
+
       if (payload.action === "reset") {
-        state.mockStore = { status: "setup", question: "", answers: {} };
+        saveLocalRoomData(roomCode, { status: "setup", question: "", answers: {} });
       } else if (payload.action === "set_question") {
-        state.mockStore.status = "playing";
-        state.mockStore.question = payload.question;
-        if (Object.keys(state.mockStore.answers).length === 0) {
-          state.mockStore.answers = {
+        current.status = "playing";
+        current.question = payload.question;
+        if (!current.answers || Object.keys(current.answers).length === 0) {
+          current.answers = {
             "呆萌羊駝": "珍珠奶茶",
             "墨鏡羊駝": "珍奶微糖微冰"
           };
         }
+        saveLocalRoomData(roomCode, current);
       } else if (payload.action === "submit_answer") {
-        state.mockStore.answers[payload.playerName] = payload.answer;
+        current.answers = current.answers || {};
+        current.answers[payload.playerName] = payload.answer;
+        saveLocalRoomData(roomCode, current);
       } else if (payload.action === "reveal") {
-        state.mockStore.status = "revealed";
+        current.status = "revealed";
+        saveLocalRoomData(roomCode, current);
       }
     }
 
@@ -829,12 +862,12 @@
       updateSyncIndicator("syncing");
 
       try {
-        // 同步更新本機狀態快取，確保沙盒環境下也能即時反應
+        // 同步更新本機房號快取，確保同瀏覽器多開分頁與沙盒環境下都能即時反應
         applyLocalMockAction(payload);
 
         if (state.isMockMode) {
-          await new Promise(r => setTimeout(r, 150));
-          renderGameState(JSON.parse(JSON.stringify(state.mockStore)));
+          await new Promise(r => setTimeout(r, 120));
+          renderGameState(getLocalRoomData(state.room));
           updateSyncIndicator("ok");
           return true;
         }
@@ -873,7 +906,7 @@
         state.isMockMode = true;
         const toggle = document.getElementById("mock-mode-toggle");
         if (toggle) toggle.checked = true;
-        renderGameState(JSON.parse(JSON.stringify(state.mockStore)));
+        renderGameState(getLocalRoomData(state.room));
         updateSyncIndicator("ok");
         showToast("目前處於預覽沙盒環境，已自動切換為單機模擬模式供您測試！", "info");
         return true;
@@ -1014,7 +1047,15 @@
       // 階段二與三：作答中 (playing) 或 已開牌 (revealed)
       stageSetup.classList.add("hidden");
       stageActive.classList.remove("hidden");
-      document.getElementById("current-question-text").textContent = data.question;
+
+      const displayQuestion = data.question || "（房主尚未輸入題目文字）";
+      document.getElementById("current-question-text").textContent = displayQuestion;
+
+      // 同步將題目帶入房主控制台輸入框（若房主正在查看且尚未自行修改）
+      const hostInput = document.getElementById("host-question-input");
+      if (hostInput && document.activeElement !== hostInput && data.question) {
+        hostInput.value = data.question;
+      }
 
       const answerForm = document.getElementById("player-answer-form");
       const roundBadge = document.getElementById("round-status-badge");
