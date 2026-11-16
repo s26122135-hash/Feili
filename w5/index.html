@@ -780,6 +780,19 @@
     // =================================================================
     // 7. Google Apps Script (GAS) 資料串接 (GET 輪詢 & POST 更新)
     // =================================================================
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return res;
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
+      }
+    }
+
     async function fetchRoomState(isBackground = false) {
       if (!state.room || state.isSyncing || (isBackground && state.isPosting)) return;
       state.isSyncing = true;
@@ -792,11 +805,11 @@
           data = getLocalRoomData(state.room);
         } else {
           const url = `${GAS_API_URL}?room=${encodeURIComponent(state.room)}&t=${Date.now()}`;
-          const response = await fetch(url, {
+          const response = await fetchWithTimeout(url, {
             method: "GET",
             redirect: "follow"
-          });
-          if (!response.ok) throw new Error("網路回應異常");
+          }, 10000);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
           data = await response.json();
         }
 
@@ -811,21 +824,17 @@
           answers: (data.answers && typeof data.answers === "object") ? data.answers : {}
         };
 
-        console.log(`[Room ${state.room}] 同步狀態:`, normalizedData);
         renderGameState(normalizedData);
         updateSyncIndicator("ok");
         return normalizedData;
       } catch (err) {
-        console.warn("GAS 讀取受限，自動切換至本機沙盒暫存狀態:", err);
-        if (!state.isMockMode) {
-          state.isMockMode = true;
-          const toggle = document.getElementById("mock-mode-toggle");
-          if (toggle) toggle.checked = true;
+        console.warn("GAS 雲端同步暫時失敗，將於下次輪詢自動重試:", err);
+        // 保持雲端模式，不擅自切換為單機模擬，僅更新燈號提示
+        updateSyncIndicator("error");
+        if (!isBackground) {
+          showToast("⚠️ 無法連上 Google 試算表，請確認 GAS 權限是否設為「所有人」，或手動勾選單機模擬模式。", "error");
         }
-        const fallbackData = getLocalRoomData(state.room);
-        renderGameState(fallbackData);
-        updateSyncIndicator("ok");
-        return fallbackData;
+        return null;
       } finally {
         state.isSyncing = false;
       }
@@ -862,30 +871,29 @@
       updateSyncIndicator("syncing");
 
       try {
-        // 同步更新本機房號快取，確保同瀏覽器多開分頁與沙盒環境下都能即時反應
-        applyLocalMockAction(payload);
-
         if (state.isMockMode) {
+          applyLocalMockAction(payload);
           await new Promise(r => setTimeout(r, 120));
           renderGameState(getLocalRoomData(state.room));
           updateSyncIndicator("ok");
           return true;
         }
 
+        // 雲端模式：先嘗試標準 POST，若遇瀏覽器 CORS 轉址限制則自動使用 no-cors 穿透寫入
         try {
-          const response = await fetch(GAS_API_URL, {
+          const response = await fetchWithTimeout(GAS_API_URL, {
             method: "POST",
             redirect: "follow",
             headers: {
               "Content-Type": "text/plain;charset=utf-8"
             },
             body: JSON.stringify(payload)
-          });
+          }, 10000);
           if (response.ok) {
             await response.text();
           }
         } catch (corsErr) {
-          console.warn("標準 POST 遇到 CORS 限制，嘗試 no-cors 穿透:", corsErr);
+          console.warn("標準 POST 遇到 CORS 限制，改用 no-cors 穿透送出:", corsErr);
           await fetch(GAS_API_URL, {
             method: "POST",
             mode: "no-cors",
@@ -896,20 +904,21 @@
           });
         }
 
-        await new Promise(r => setTimeout(r, 500));
+        // 等待 GAS 寫入試算表後，立即透過 GET 抓取最新雲端資料
+        await new Promise(r => setTimeout(r, 700));
         state.isPosting = false;
-        await fetchRoomState(true);
-        updateSyncIndicator("ok");
-        return true;
+        const latest = await fetchRoomState(true);
+        if (latest) {
+          updateSyncIndicator("ok");
+          return true;
+        } else {
+          throw new Error("寫入後無法讀取雲端狀態");
+        }
       } catch (err) {
-        console.warn("沙盒環境無法連接外部 GAS，自動切換為本機模擬模式:", err);
-        state.isMockMode = true;
-        const toggle = document.getElementById("mock-mode-toggle");
-        if (toggle) toggle.checked = true;
-        renderGameState(getLocalRoomData(state.room));
-        updateSyncIndicator("ok");
-        showToast("目前處於預覽沙盒環境，已自動切換為單機模擬模式供您測試！", "info");
-        return true;
+        console.error("雲端寫入失敗:", err);
+        updateSyncIndicator("error");
+        showToast("❌ 雲端同步失敗！請檢查網路或確認 GAS 部署權限為「所有人」。", "error");
+        return false;
       } finally {
         state.isPosting = false;
       }
